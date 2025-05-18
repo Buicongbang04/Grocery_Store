@@ -103,3 +103,42 @@ export const login = async (req, res) => {
         })
     }
 }
+
+// Check Auth: /api/user/is-auth
+export const isAuth = async (req, res) => {
+    try{
+        const {userId} = req.body;
+        const user = await User.findById(userId).select('-password -cartItems -__v')
+        return res.json({
+            success: true,
+            user
+        })
+    }catch(error){
+        console.log(error.message)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// Logout user: /api/user/logout
+export const logout = async (req, res) => {
+    try{
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        return res.json({
+            success: true,
+            message: 'Logged out successfully'
+        })
+    }catch(error){
+        console.log(error.message)
+        res.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
