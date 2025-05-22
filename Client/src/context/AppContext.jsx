@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { dummyProducts } from '../assets/assets';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -36,9 +35,32 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  // Fetch user auth status, user data, and cart items
+  const fetchUser = async () => {
+    try {
+      const { data } = await axios.get('/api/user/is-auth');
+      if (data.success) {
+        setUser(data.user);
+        setCartItems(data.user.cartItems);
+      }
+    } catch (error) {
+      setUser(null);
+      toast.error(error.message);
+    }
+  };
+
   // fetch all products
   const fetchProducts = async () => {
-    setProducts(dummyProducts);
+    try {
+      const { data } = await axios.get('/api/product/list');
+      if (data.success) {
+        setProducts(data.products);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // add product to cart
@@ -98,8 +120,26 @@ export const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchProducts(), fetchSeller();
+    fetchProducts(), fetchSeller(), fetchUser();
   }, []);
+
+  // Update databse cart items
+  useEffect(() => {
+    const updateCart = async () => {
+      try {
+        const { data } = await axios.post('/api/cart/update', { cartItems });
+        if (!data.success) {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+
+    if (user) {
+      updateCart();
+    }
+  }, [cartItems]);
 
   const value = {
     navigate,
@@ -120,6 +160,8 @@ export const AppContextProvider = ({ children }) => {
     getCartCount,
     getCartAmount,
     axios,
+    fetchProducts,
+    setCartItems,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

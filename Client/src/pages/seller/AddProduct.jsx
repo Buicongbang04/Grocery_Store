@@ -44,14 +44,14 @@ const AddProduct = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error('Error adding product:', error.message);
+      toast.error(error.message);
     }
   };
 
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col justify-between">
       <form
-        onChange={onSubmitHandler}
+        onSubmit={onSubmitHandler}
         className="md:p-10 p-4 space-y-5 max-w-lg"
       >
         <div>
@@ -165,7 +165,10 @@ const AddProduct = () => {
             />
           </div>
         </div>
-        <button className="px-8 py-2.5 bg-primary text-white font-medium rounded cursor-pointer">
+        <button
+          type="submit"
+          className="px-8 py-2.5 bg-primary text-white font-medium rounded cursor-pointer"
+        >
           ADD
         </button>
       </form>
